@@ -22,6 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+console.info('Registering routes');
 app.use('/', routes);
 app.use('/log', log);
 
@@ -55,6 +56,8 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+console.info('The end');
 
 
 module.exports = app;
