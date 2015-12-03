@@ -14,7 +14,8 @@ router.get('/', function(req, res, next) {
 });
 
 router.put('/:hostname', function(req, res, next) {
-  console.info('Hostname : ' + req.params.hostname);
+  console.info('PUT -> /log/:hostname');
+  console.info('hostname: ' + req.params.hostname);
   client.create({
     index: req.params.hostname,
     type: 'log',
@@ -26,6 +27,31 @@ router.put('/:hostname', function(req, res, next) {
     else {
       res.send(error);
     }
+  });
+});
+
+router.get('/:hostname/:query?', function(req, res, next) {
+  console.info('GET -> /log/:hostname');
+  console.info('hostname: ' + req.params.hostname);
+  console.info('We should get logs for this hostname');
+  var query = {
+    index: req.params.hostname,
+    type: 'log',
+  };
+  if(typeof req.params.query === 'string') {
+    query.body = {
+      query: {
+        match: {
+          body: req.params.query
+        }
+      }
+    };
+  }
+  client.search(query).then(function (resp) {
+    var hits = resp.hits.hits;
+    res.send(hits);
+  }, function (err) {
+      console.trace(err.message);
   });
 });
 
