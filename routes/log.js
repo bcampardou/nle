@@ -13,17 +13,12 @@ router.get('/', function(req, res, next) {
   res.send('What did you expect ?');
 });
 
-router.put('/', function(req, res, next) {
+router.put('/:hostname', function(req, res, next) {
+  console.info('Hostname : ' + req.params.hostname);
   client.create({
-    index: 'localhost',
+    index: req.params.hostname,
     type: 'log',
-    body: {
-      title: 'Test 1',
-      tags: ['y', 'z'],
-      published: true,
-      published_at: '2013-01-01',
-      counter: 1
-    }
+    body: req.body
   }, function (error, response) {
     if(typeof error === 'undefined') {
       res.send(response);

@@ -33,6 +33,13 @@ app.use(function(req, res, next) {
   next(err);
 });
 
+app.param("hostname", function(req, res, next, hostname) {
+  if(!hostname.match(/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/))
+    //hostname is invalid
+    next(new Error('Hostname parameter is invalid'));
+   else next();
+});
+
 // error handlers
 
 // development error handler
@@ -56,8 +63,6 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
-console.info('The end');
 
 
 module.exports = app;
