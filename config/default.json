@@ -1,0 +1,11 @@
+{
+  // Redis configs
+  "Redis": {
+    "host": "localhost",
+    "port": 6379,
+    "options": {}
+  },
+  "ElasticSearch": {
+    "hosts": ["localhost:9200", "localhost:9300"]
+  }
+}
