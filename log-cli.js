@@ -1,6 +1,9 @@
 var uuid = require('node-uuid'),
+  config = require('config'),
   redis = require("redis"),
-  client = redis.createClient();
+  client = redis.createClient(
+    config.get("Redis.port"), config.get("Redis.host"), config.get("Redis.options")
+  );
 
 var help =  "usage: to do...";
 

@@ -1,13 +1,14 @@
 var express = require('express');
 var util = require('util');
+var config = require('config');
 var router = express.Router();
 var elasticsearch = require('elasticsearch');
 
 var client = elasticsearch.Client({
-  hosts: [
-    'localhost:9200'
-  ]
+  hosts: config.get("ElasticSearch.hosts")
 });
+
+console.log("Using elasticsearch @ " + config.get("ElasticSearch.host"));
 
 router.get('/', function(req, res, next) {
   res.send('What did you expect ?');
