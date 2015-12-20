@@ -63,4 +63,6 @@ app.use(function(err, req, res, next) {
   });
 });
 
+console.log('Server listening on port : ' + app.get('port'));
+
 module.exports = app;

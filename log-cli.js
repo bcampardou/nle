@@ -18,17 +18,18 @@ tasks.help = function(){
 tasks.apiKeyGen = function(hostname) {
   console.log("\n------- not implemented ------\n");
   client.get(hostname, function(error, reply) {
-    if(typeof error !== 'undefined') {
+    if(error != null) {
+        console.error(error);
       throw error;
     }
     
-    if(typeof reply === 'undefined') {
+    if(reply == null) {
       var apikey = uuid.v4();
       // Write in redis
       client.set(hostname, apikey);
       console.log("Your API Key for '" + hostname + "' is: " + apikey + "\nPlease write it carefully.")
     } else {
-      throw new Error('A key already exists for the hostname ' + hostname);
+      console.error('A key already exists for the hostname ' + hostname);
     }
     process.exit();
   });
