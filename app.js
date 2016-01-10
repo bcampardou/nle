@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var config = require('config');
 var routes = require('./routes/index');
 var log = require('./routes/log');
 
@@ -63,6 +64,13 @@ app.use(function(err, req, res, next) {
   });
 });
 
-console.log('Server listening on port : ' + app.get('port'));
+var appConfig = config.get('App');
+var listener = null;
+var listenCallback = function() {
+    console.info('Server listening on port : %d', listener.address().port);
+}
+
+listener = (appConfig == null || appConfig.port == null) ? app.listen(listenCallback) : app.listen(appConfig.port, listenCallback);
+
 
 module.exports = app;
