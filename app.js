@@ -7,8 +7,28 @@ var bodyParser = require('body-parser');
 var config = require('config');
 var routes = require('./routes/index');
 var log = require('./routes/log');
+var keytool = require('./key-tool');
+const readline = require('readline').createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
 var app = express();
+
+keytool.find('*', function(error, reply) {
+    if(reply === null) {
+        // There is no api key for administration.
+        // Ask the user if he wants to create one now.
+        readline.question('There is no api key for administration.\nWould you like to register one now (y/n)? ', (answer) => {
+            if(answer === 'y' || answer === 'Y') {
+                keytool.register('*', function(error, reply) {
+                    console.info("Your API Key for administration is: " + reply + "\nIt lets you access any host logs.\nPlease write it carefully.");
+                });
+            }
+        });
+        
+    }
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

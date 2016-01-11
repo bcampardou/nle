@@ -1,9 +1,5 @@
 var uuid = require('node-uuid'),
-  config = require('config'),
-  redis = require("redis"),
-  client = redis.createClient(
-    config.get("Redis.port"), config.get("Redis.host"), config.get("Redis.options")
-  );
+    keytool = require('key-tool');
 
 var argv = process.argv.slice(2);
 
@@ -15,14 +11,15 @@ tasks['help'] = function(){
   process.exit();
 };
 
-tasks['findkey'] = function() {
-    var hostname = '';
+tasks['findkey'] = function(hostname) {
     if(argv[0] === "findkey") {
-        if(argv[1] === "--hostname" && typeof argv[2] === "string") {
-            hostname = argv[2];
-        } else {
-            console.log("You have to specify a hostname with '--hostname' followed by a string");
-            return;
+        if(hostname === undefined) {
+            if(argv[1] === "--hostname" && typeof argv[2] === "string") {
+                hostname = argv[2];
+            } else {
+                console.log("You have to specify a hostname with '--hostname' followed by a string");
+                return;
+            }
         }
     }
     else return;
@@ -30,7 +27,7 @@ tasks['findkey'] = function() {
     
     console.log(hostname);
     
-    client.get(hostname, function(error, reply) {
+    keytool.find(hostname, function(error, reply) {
         if(error != null) {
             console.error(error);
             throw error;
@@ -45,28 +42,25 @@ tasks['findkey'] = function() {
     });
 };
 
-tasks['keygen'] = function() {
-    var hostname = '';
-  
+tasks['keygen'] = function(hostname) {  
     if(argv[0] === "keygen") {
-        if(argv[1] === "--hostname" && typeof argv[2] === "string") {
-            hostname = argv[2];
-        } else {
-            console.log("You have to specify a hostname with '--hostname' followed by a string")
+        if(hostname === undefined) {
+            if(argv[1] === "--hostname" && typeof argv[2] === "string") {
+                hostname = argv[2];
+            } else {
+                console.log("You have to specify a hostname with '--hostname' followed by a string")
+            }
         }
     }
     
-    client.get(hostname, function(error, reply) {
+    keytool.register(hostname, function(error, reply) {
         if(error != null) {
             console.error(error);
-        throw error;
+            throw error;
         }
         
-        if(reply == null) {
-            var apikey = uuid.v4();
-            // Write in redis
-            client.set(hostname, apikey);
-            console.info("Your API Key for '" + hostname + "' is: " + apikey + "\nPlease write it carefully.")
+        if(reply !== null) {
+            console.info("Your API Key for '" + hostname + "' is: " + reply + "\nPlease write it carefully.")
         } else {
             console.error('A key already exists for the hostname ' + hostname);
         }
