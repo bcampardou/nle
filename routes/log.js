@@ -3,6 +3,7 @@ var util = require('util');
 var config = require('config');
 var router = express.Router();
 var elasticsearch = require('elasticsearch');
+var keytool = require('../key-tool');
 var redis = require("redis"),
     redisClient = redis.createClient(
         config.get("Redis.port"), config.get("Redis.host"), config.get("Redis.options")
@@ -87,7 +88,7 @@ router.get('/:hostname/:query?', function(req, res, next) {
         }
         client.search(query).then(function (resp) {
             var hits = resp.hits.hits;
-            res.send(hits);
+            res.json(hits);
         }, function (err) {
             console.trace(err.message);
         });

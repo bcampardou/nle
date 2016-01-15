@@ -1,5 +1,5 @@
 var uuid = require('node-uuid'),
-    keytool = require('key-tool');
+    keytool = require('./key-tool');
 
 var argv = process.argv.slice(2);
 

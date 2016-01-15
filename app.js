@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var config = require('config');
 var routes = require('./routes/index');
 var log = require('./routes/log');
+var admin = require('./routes/admin');
 var keytool = require('./key-tool');
 const readline = require('readline').createInterface({
         input: process.stdin,
@@ -45,11 +46,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 console.info('Registering routes');
 app.use('/', routes);
 app.use('/log', log);
+app.use('/adm', admin);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
-  err.status = 404;
+  res.status(404);
+  res.send(err.message);
   next(err);
 });
 
@@ -73,16 +76,19 @@ if (app.get('env') === 'development') {
     });
   });
 }
+else {
+    // production error handler
+    // no stacktraces leaked to user
+    app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
+    });    
+}
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
-});
+
 
 var appConfig = config.get('App');
 var listener = null;
