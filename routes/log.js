@@ -19,7 +19,7 @@ console.log("Using redis @ " + config.get("Redis.host") + ":" + config.get("Redi
 
 // execute the callback if the api key is ok
 var checkApiKey = function(req, res, hostname, callback) {
-    console.log('checkApiKey : ' + req.query.key);
+    console.log('Checking given API key : ' + req.query.key);
     var apiKey = req.query.key;
     if(apiKey == undefined) {
             // bad api key
@@ -38,9 +38,23 @@ var checkApiKey = function(req, res, hostname, callback) {
             callback(req, res);
         }
         else {
-            // bad api key
-            res.writeHead(401);
-            res.end('The API key sent is unknown.');
+            redisClient.get('*', function(error, reply) {
+                if(error != null) {
+                    console.error(error);
+                    res.writeHead(500);
+                    res.end('An error occured');
+                    throw error;
+                }
+                
+                if (reply != null && reply === apiKey) {
+                    callback(req, res);
+                }
+                else {
+                    // bad api key
+                    res.writeHead(401);
+                    res.end('The API key sent is unknown.');
+                }
+            });
         }
     });
 };
@@ -88,7 +102,7 @@ router.get('/:hostname/:query?', function(req, res, next) {
         }
         client.search(query).then(function (resp) {
             var hits = resp.hits.hits;
-            res.json(hits);
+            res.jsonp(hits);
         }, function (err) {
             console.trace(err.message);
         });
