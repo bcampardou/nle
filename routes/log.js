@@ -90,6 +90,7 @@ router.get('/:hostname/:query?', function(req, res, next) {
         var query = {
             index: req.params.hostname,
             type: 'log',
+            size: 1000
         };
         if(typeof req.params.query === 'string') {
             query.body = {
@@ -99,12 +100,20 @@ router.get('/:hostname/:query?', function(req, res, next) {
                     }
                 }
             };
+        } else {
+            query.body = {
+                query : {
+                    match_all : {}
+                }
+            }
         }
         client.search(query).then(function (resp) {
             var hits = resp.hits.hits;
             res.jsonp(hits);
         }, function (err) {
             console.trace(err.message);
+            res.writeHead(500);
+            
         });
     });
 });
