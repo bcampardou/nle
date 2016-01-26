@@ -46,12 +46,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride('_method'));
 
 console.info('Registering routes');
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 app.use('/', routes);
 app.use('/log', log);
 app.use('/adm', admin);
@@ -62,13 +56,6 @@ app.use(function(req, res, next) {
   res.status(404);
   res.send(err.message);
   next(err);
-});
-
-app.param("hostname", function(req, res, next, hostname) {
-  if(!hostname.match(/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/))
-    //hostname is invalid
-    next(new Error('Hostname parameter is invalid'));
-   else next();
 });
 
 // error handlers

@@ -5,6 +5,8 @@ var uuid = require('node-uuid'),
     config.get("Redis.port"), config.get("Redis.host"), config.get("Redis.options")
   );
 
+console.log("Using redis @ " + config.get("Redis.host") + ":" + config.get("Redis.port"));
+
 module.exports = {
     find: function(hostname, callback) {
         client.get(hostname, function(error, reply) {
