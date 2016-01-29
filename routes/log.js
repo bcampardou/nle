@@ -1,15 +1,7 @@
 var express = require('express');
-var util = require('util');
-var config = require('config');
-var router = express.Router();
-var elasticsearch = require('elasticsearch');
 var keytool = require('../key-tool');
-
-var esclient = elasticsearch.Client({
-    hosts: config.get("ElasticSearch.hosts")
-});
-
-console.log("Using elasticsearch @ " + config.get("ElasticSearch.hosts"));
+var logger = require('../logger');
+var router = express.Router();
 
 // define wich hostname are valid as param
 router.param("hostname", function(req, res, next, hostname) {
@@ -78,17 +70,15 @@ router.get('/', function(req, res, next) {
 
 router.put('/:hostname', function(req, res, next) {    
     validKey(req, res, req.params.hostname, function(req, res, next) {
-        esclient.create({
-            index: req.params.hostname,
-            type: 'log',
-            body: req.body
-        }, function (error, response) {
-            if(error == null) {
+        logger.log(req.hostname, req.params.body, function(error, response) {
+            if(error != null) {
+                res.writeHead(500);
+                res.send(error);
+                next(error);
+            } else {
                 res.send(response);
             }
-            else {
-                res.send(error);
-            }
+            next();
         });
     });
 });
@@ -115,13 +105,16 @@ router.get('/:hostname/:query?', function(req, res, next) {
                 }
             }
         }
-        esclient.search(query).then(function (resp) {
-            var hits = resp.hits.hits;
-            res.jsonp(hits);
-        }, function (err) {
-            console.trace(err.message);
-            res.writeHead(500);
-        });
+        logger.search(query, function (resp) {
+                var hits = resp.hits.hits;
+                res.jsonp(hits);
+                next();
+            }, function (err) {
+                console.trace(err.message);
+                res.writeHead(500);
+                res.send(err.message);
+                next(err);
+            });
     });
 });
 
