@@ -21,12 +21,13 @@ keytool.find('*', function(error, reply) {
     if(reply === null) {
         // There is no api key for administration.
         // Ask the user if he wants to create one now.
-        readline.question('There is no api key for administration.\nWould you like to register one now (y/n)? ', (answer) => {
+        readline.question("There is no api key for administration.\nWould you like to register one now (y/n)? ", function(answer) {
             if(answer === 'y' || answer === 'Y') {
                 keytool.register('*', function(error, reply) {
                     console.info("Your API Key for administration is: " + reply + "\nIt lets you access any host logs.\nPlease write it carefully.");
                 });
             }
+            readline.clise();
         });
         
     }
