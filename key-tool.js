@@ -13,12 +13,12 @@ module.exports = {
             if(error != null) {
                 console.error(error);
                 if(callback !== null) {
-                    callback(error, reply);
+                    return callback(error);
                 }
             }
             
             if(callback !== null) {
-                callback(error, reply);
+                return callback(null, reply);
             }
         });
     },
@@ -26,17 +26,21 @@ module.exports = {
         client.get(hostname, function(error, reply) {
             if(error != null) {
                 console.error(error);
-                callback(error, reply);
+                return callback(error);
             }
             
             if(reply == null) {
                 var apikey = uuid.v4();
                 // Write in redis
-                client.set(hostname, apikey);
-                reply = apikey;
-                callback(error, apikey);
+                return client.set(hostname, apikey, function(error, reply) {
+                    if(error != null)
+                        return callback(error);
+                        
+                    return callback(null, apikey);
+                });
+                
             } else {
-                callback(error, null);
+                return callback(error);
             }
         });
     },
@@ -44,26 +48,51 @@ module.exports = {
         client.get('*', function(error, reply) {
             if(error != null) {
                 console.error(error);
-                callback(error, reply);
+                return callback(error);
             }
             
             if(reply == null) {
-                error = new Error('No administration key registered');
+                callback(new Error('No administration key registered'));
             } else {
                 if (reply == apiKey) {
                     client.keys('*', function (err, keys) {
-                        if (err) return console.log(err);
+                        if (err) return callback(err);
                         
                         keys.forEach(function(item,i) {
                             if(item === '*') keys.splice(i, 1);
                         });
                         
-                        callback(err, keys);
+                        return callback(null, keys);
+                    });
+                }
+                else {
+                    return callback(new Error('The api key does not match the registered administration key'));
+                }
+            }
+        });
+    },
+    getKeys: function(apiKey, callback) {
+        client.get('*', function(error, reply) {
+            if(error != null) {
+                console.error(error);
+                return callback(error);
+            }
+            
+            if(reply == null) {
+                return callback(new Error('No administration key registered'));
+            } else {
+                if (reply == apiKey) {
+                    client.keys('*', function(e, keys){
+                        if(e) {console.log(e);}
+                        client.mget(keys, function(err, values){
+                            if(err){ return callback(err, null)}
+                            return callback(null, values);
+                        });
                     });
                 }
                 else {
                     error = new Error('The api key does not match the registered administration key');
-                    callback(error, null);
+                    return callback(error);
                 }
             }
         });

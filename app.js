@@ -1,37 +1,40 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var config = require('config');
-var methodOverride = require('method-override');
-var routes = require('./routes/index');
-var log = require('./routes/log');
-var admin = require('./routes/admin');
-var keytool = require('./key-tool');
-const readline = require('readline').createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
+var express = require('express')
+    , path = require('path')
+    , favicon = require('serve-favicon')
+    , logger = require('morgan')
+    , cookieParser = require('cookie-parser')
+    , bodyParser = require('body-parser')
+    , config = require('config')
+    , methodOverride = require('method-override')
+    , routes = require('./routes/index')
+    , log = require('./routes/log')
+    , admin = require('./routes/admin')
+    , keytool = require('./key-tool')
+    , app = express();
+const readline = require('readline');
 
-var app = express();
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
 
 keytool.find('*', function(error, reply) {
     if(reply === null) {
         // There is no api key for administration.
         // Ask the user if he wants to create one now.
-        readline.question("There is no api key for administration.\nWould you like to register one now (y/n)? ", function(answer) {
+        rl.question("There is no api key for administration.\nWould you like to register one now (y/n)? ", (answer) => {
             if(answer === 'y' || answer === 'Y') {
                 keytool.register('*', function(error, reply) {
                     console.info("Your API Key for administration is: " + reply + "\nIt lets you access any host logs.\nPlease write it carefully.");
                 });
             }
-            readline.clise();
+            rl.close();
         });
         
     }
 });
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -39,24 +42,31 @@ app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(methodOverride('_method'));
+app.use(logger('dev'))
+    .use(bodyParser.json())
+    .use(bodyParser.urlencoded({ extended: false }))
+    .use(cookieParser())
+    .use(express.static(path.join(__dirname, 'public')))
+    .use(methodOverride('_method'));
 
 console.info('Registering routes');
-app.use('/', routes);
-app.use('/log', log);
-app.use('/adm', admin);
+// Allow cross origins requests (CORS)
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+})
+    .use('/', routes)
+    .use('/log', log)
+    .use('/admin', admin);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
-  res.status(404);
+  res.statusCode = 404;
   res.send(err.message);
-  next(err);
 });
 
 // error handlers
@@ -65,7 +75,7 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
+    res.statusCode = err.status || 500;
     res.render('error', {
       message: err.message,
       error: err
@@ -76,23 +86,12 @@ else {
     // production error handler
     // no stacktraces leaked to user
     app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
+        res.statusCode = err.status || 500;
+        res.render('error', {
+            message: err.message,
+            error: {}
+        });
     });    
 }
-
-
-
-var appConfig = config.get('App');
-var listener = null;
-var listenCallback = function() {
-    console.info('Server listening on port : %d', listener.address().port);
-}
-
-listener = (appConfig == null || appConfig.port == null) ? app.listen(listenCallback) : app.listen(appConfig.port, listenCallback);
-
 
 module.exports = app;

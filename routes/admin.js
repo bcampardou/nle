@@ -4,21 +4,88 @@ var config = require('config');
 var router = express.Router();
 var keytool = require('../key-tool');
 
-router.get('/keys', function(req, res, next) {
+// define wich hostname are valid as param
+router.param("hostname", function(req, res, next, hostname) {
+    if(!hostname.match(/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/))
+        //hostname is invalid
+        return next(new Error('Hostname parameter is invalid'));
+    
+    return next();
+});
+
+router.put('/register/:hostname', function(req, res, next) {
+    var apiKey = req.query.key;
+    var hostname = req.params.hostname;
+    if(apiKey == undefined) {
+        //bad api key
+        return next(new Error('No API key defined'));
+    }
+    
+    keytool.find('*', function(error, reply) {
+        if(error != null) {
+            return next(error);
+        }
+        
+        if(reply == apiKey) {
+            keytool.register(hostname, function(error, reply) {
+                if(error != null) {
+                    return next(error);
+                }
+                
+                res.json(reply);
+            });
+        }
+        else {
+            //bad api key
+            return next(new Error('Bad API key'));
+        }
+    });
+});
+
+router.get('/hosts', function(req, res, next) {
     var apiKey = req.query.key;
     if(apiKey == undefined) {
         // bad api key
-        res.writeHead(401);
-        res.json('No API key defined.');
+        return next(new Error('Bad API key'));
     }
     
     keytool.getHosts(apiKey, function(error, reply) {
         if(error != null) {
-            res.writeHead(400);
-            res.json(error.message);
+            return next(error);
         }
         
         res.jsonp(reply);
+    });
+});
+
+
+
+router.get('/keys/:hostname', function(req, res, next) {
+    var apiKey = req.query.key;
+    var hostname = req.params.hostname;
+    if(apiKey == undefined) {
+        //bad api key
+        return next(new Error('No API key defined'));
+    }
+    
+    keytool.find('*', function(error, reply) {
+        if(error != null) {
+            return next(new Error('Error getting the admin api key.'));
+        }
+        
+        if(reply == apiKey) {
+            keytool.find(hostname, function(error, reply) {
+                if(error != null) {
+                    return next(error);
+                }
+                
+                res.json(reply);
+            });
+        }
+        else {
+            //bad api key
+            return next(new Error('Bad API key'));
+        }
     });
 });
 

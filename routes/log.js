@@ -5,31 +5,29 @@ var router = express.Router();
 
 // define wich hostname are valid as param
 router.param("hostname", function(req, res, next, hostname) {
-  if(!hostname.match(/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/))
-    //hostname is invalid
-    next(new Error('Hostname parameter is invalid'));
-   else next();
+    if(!hostname.match(/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/))
+        //hostname is invalid
+        return next(new Error('Hostname parameter is invalid'));
+    else return next();
 });
 
 // execute the callback if the api key is ok
-var validKey = function(req, res, hostname, callback) {
-    var apiKey = req.query.key;
+var validKey = function(hostname, key, callback) {
+    var apiKey = key;
     if(apiKey == undefined) {
             // bad api key
-            res.writeHead(401);
-            res.end('No API key defined.');
+            return callback(new Error('No API key defined'));
     }
     
     keytool.find(hostname, function(error, reply) {
         if(error != null) {
             console.error(error);
-            res.writeHead(500);
-            res.end('An error occured');
+            callback(error);
         }
         
         if (reply != null && reply === apiKey) {
             // Authorized
-            callback(req, res);
+            callback(null, reply);
         }
         else {
             // The key does not correspond to the hostname.
@@ -37,44 +35,38 @@ var validKey = function(req, res, hostname, callback) {
             keytool.find('*', function(error, reply) {
                 if(error != null) {
                     console.error(error);
-                    res.writeHead(500);
-                    res.end('An error occured');
+                    return callback(error);
                 }
                 
                 if (reply != null && reply === apiKey) {
                     // API Key is the admin api key
                     // Authorized
-                    callback(req, res);
+                    callback(null, reply);
                 }
                 else {
                     // bad api key
-                    res.writeHead(401);
-                    res.end('The API key sent is unknown.');
+                    return callback(new Error('Bad API key'));
                 }
             });
         }
     });
 };
 
-// Allow cross origins requests (CORS)
-router.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+
 
 router.get('/', function(req, res, next) {
     res.send('Seriously, what are you trying to do ?');
 });
 
-router.put('/:hostname', function(req, res, next) {    
-    validKey(req, res, req.params.hostname, function(req, res, next) {
+router.put('/:hostname', function(req, res, value, next) {
+    var apiKey = req.query.key;
+    validKey(req.params.hostname, apiKey, function(err, reply) {
+        if(err != null)
+            return next(err);
+            
         logger.log(req.hostname, req.params.body, function(error, response) {
             if(error != null) {
-                res.writeHead(500);
-                res.send(error);
-                next(error);
+                return next(error);
             } else {
                 res.send(response);
             }
@@ -84,7 +76,11 @@ router.put('/:hostname', function(req, res, next) {
 });
 
 router.get('/:hostname/:query?', function(req, res, next) {
-    validKey(req, res, req.params.hostname, function(req,res,next) {
+    var apiKey = req.query.key;
+    validKey(req.params.hostname, apiKey, function(err, reply) {
+        if(err != null)
+            return next(err);
+            
         var query = {
             index: req.params.hostname,
             type: 'log',
@@ -111,8 +107,6 @@ router.get('/:hostname/:query?', function(req, res, next) {
                 next();
             }, function (err) {
                 console.trace(err.message);
-                res.writeHead(500);
-                res.send(err.message);
                 next(err);
             });
     });

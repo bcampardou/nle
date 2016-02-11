@@ -14,9 +14,7 @@ module.exports = {
                 index: hostname,
                 type: 'log',
                 body: document
-            }, function (error, response) {
-                callback(error, response);
-            });
+            }, callback);
     },
     search: function(query, successCallback, errorCallback) {
         esclient.search(query).then(successCallback, errorCallback);
