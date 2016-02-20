@@ -58,19 +58,18 @@ router.get('/', function(req, res, next) {
     res.send('Seriously, what are you trying to do ?');
 });
 
-router.put('/:hostname', function(req, res, value, next) {
+router.put('/:hostname', function(req, res, next) {
     var apiKey = req.query.key;
     validKey(req.params.hostname, apiKey, function(err, reply) {
         if(err != null)
             return next(err);
             
-        logger.log(req.hostname, req.params.body, function(error, response) {
+        logger.log(req.params.hostname, req.body, function(error, response) {
             if(error != null) {
                 return next(error);
             } else {
                 res.send(response);
             }
-            next();
         });
     });
 });
@@ -104,7 +103,6 @@ router.get('/:hostname/:query?', function(req, res, next) {
         logger.search(query, function (resp) {
                 var hits = resp.hits.hits;
                 res.jsonp(hits);
-                next();
             }, function (err) {
                 console.trace(err.message);
                 next(err);
