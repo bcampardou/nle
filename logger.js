@@ -10,6 +10,7 @@ console.log("Using ElasticSearch @ " + config.get("ElasticSearch.hosts"));
 
 module.exports = {
     log: function(hostname, document, callback) {
+        document.createdAt = Date.now();
         esclient.create({
                 index: hostname,
                 type: 'log',

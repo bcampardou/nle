@@ -87,16 +87,22 @@ router.get('/:hostname/:query?', function(req, res, next) {
         };
         if(typeof req.params.query === 'string') {
             query.body = {
-                query: {
-                    match: {
-                    body: req.params.query
+                "sort" : [
+                    { "createdAt" : {"order" : "asc"}},
+                ],
+                "query": {
+                    "match": {
+                    "body": req.params.query
                     }
                 }
             };
         } else {
             query.body = {
-                query : {
-                    match_all : {}
+                "sort" : [
+                    { "createdAt" : {"order" : "asc"}},
+                ],
+                "query" : {
+                    "match_all" : {}
                 }
             }
         }
