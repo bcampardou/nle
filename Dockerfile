@@ -9,7 +9,7 @@ RUN apt-get update
 WORKDIR /srv
 
 # add source files
-RUN git clone https://github.com/BaobabCoder/node-log-engine.git
+RUN git clone https://github.com/BaobabCoder/node-log-engine.git -b "dev" --single-branch
 RUN cp -a node-log-engine/. .
 RUN rm -rf node-log-engine
 
