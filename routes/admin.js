@@ -79,7 +79,7 @@ router.get('/keys/:hostname', function(req, res, next) {
                     return next(error);
                 }
                 
-                res.json(reply);
+                res.jsonp(reply);
             });
         }
         else {
