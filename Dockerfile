@@ -1,4 +1,4 @@
-FROM node:0.10
+FROM node:5-onbuild
 
 # make sure apt is up to date
 RUN apt-get update
