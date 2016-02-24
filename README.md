@@ -5,9 +5,9 @@ A nodejs application to store logs of multiple applications. Uses redis and elas
 
 You can use this project with docker. Use the following command lines to run redis, elasticsearch and Node log engine :
 
-    docker run -d --name=redis redis:latest
-    docker run -d --name=elasticsearch elasticsearch
-    docker run -i -t --name=nle beranger/nodelog-docker:dev
+    docker run -d -p 6379:6379 --name=redis redis:latest
+    docker run -d -p 9200:9200 -p 9300:9300 --name=elasticsearch elasticsearch
+    docker run -i -t --name=nle -p 3000:3000 beranger/nodelog-docker:dev
 
 You can take a look at the available tags here : https://hub.docker.com/r/beranger/nodelog-docker/tags/
 
