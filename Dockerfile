@@ -1,4 +1,4 @@
-FROM node:5.6
+FROM node:5-onbuild
 
 # make sure apt is up to date
 RUN apt-get update
@@ -10,6 +10,7 @@ WORKDIR /srv
 
 # add source files
 RUN git clone https://github.com/BaobabCoder/node-log-engine.git -b "dev" --single-branch
+RUN rm -rf node-log-engine/node_modules
 RUN cp -a node-log-engine/. .
 RUN rm -rf node-log-engine
 
