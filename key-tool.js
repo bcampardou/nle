@@ -7,21 +7,23 @@ var uuid = require('node-uuid'),
 
 console.log("Using redis @ " + config.get("Redis.host") + ":" + config.get("Redis.port"));
 
-module.exports = {
-    find: function(hostname, callback) {
-        client.get(hostname, function(error, reply) {
-            if(error != null) {
-                console.error(error);
-                if(callback !== null) {
-                    return callback(error);
-                }
-            }
-            
+var find = function(hostname, callback) {
+    client.get(hostname, function(error, reply) {
+        if(error != null) {
+            console.error(error);
             if(callback !== null) {
-                return callback(null, reply);
+                return callback(error);
             }
-        });
-    },
+        }
+        
+        if(callback !== null) {
+            return callback(null, reply);
+        }
+    });
+};
+
+module.exports = {
+    find: find,
     register: function(hostname, callback) {
         client.get(hostname, function(error, reply) {
             if(error != null) {
@@ -94,6 +96,46 @@ module.exports = {
                     error = new Error('The api key does not match the registered administration key');
                     return callback(error);
                 }
+            }
+        });
+    },
+    // execute the callback if the api key is ok
+    checkKey: function(hostname, key, callback) {
+        var apiKey = key;
+        if(apiKey == undefined) {
+                // bad api key
+                return callback(new Error('No API key defined'));
+        }
+        
+        find(hostname, function(error, reply) {
+            if(error != null) {
+                console.error(error);
+                callback(error);
+            }
+            
+            if (reply != null && reply === apiKey) {
+                // Authorized
+                callback(null, reply);
+            }
+            else {
+                // The key does not correspond to the hostname.
+                // Let's see if it is the admin key...
+                find('*', function(error, reply) {
+                    if(error != null) {
+                        console.error(error);
+                        return callback(error);
+                    }
+                    
+                    if (reply != null && reply === apiKey) {
+                        // API Key is the admin api key
+                        // Authorized
+                        callback(null, reply);
+                    }
+                    else {
+                        // bad api key
+                        return callback(new Error('Bad API key'));
+                    }
+                });
             }
         });
     }

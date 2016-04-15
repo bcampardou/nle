@@ -3,6 +3,7 @@ var util = require('util');
 var config = require('config');
 var router = express.Router();
 var keytool = require('../key-tool');
+var logger = require('../logger');
 
 // define wich hostname are valid as param
 router.param("hostname", function(req, res, next, hostname) {
@@ -39,6 +40,26 @@ router.put('/register/:hostname', function(req, res, next) {
             //bad api key
             return next(new Error('Bad API key'));
         }
+    });
+});
+
+router.delete('/:hostname/:type', function(req, res, next) {
+    var apiKey = req.query.key;
+    var hostname = req.params.hostname;
+    var type = req.params.type;
+    if(apiKey == undefined) {
+        //bad api key
+        return next(new Error('No API key defined'));
+    }
+    
+    keytool.checkKey(hostname, apiKey, function(err, reply) {
+        if(err !== null) return next(err);
+        
+        logger.delete(hostname, type, function(response) {
+            res.json(response);
+        }, function(error) {
+            next(error);
+        });
     });
 });
 

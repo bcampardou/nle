@@ -11,56 +11,13 @@ router.param("hostname", function(req, res, next, hostname) {
     else return next();
 });
 
-// execute the callback if the api key is ok
-var validKey = function(hostname, key, callback) {
-    var apiKey = key;
-    if(apiKey == undefined) {
-            // bad api key
-            return callback(new Error('No API key defined'));
-    }
-    
-    keytool.find(hostname, function(error, reply) {
-        if(error != null) {
-            console.error(error);
-            callback(error);
-        }
-        
-        if (reply != null && reply === apiKey) {
-            // Authorized
-            callback(null, reply);
-        }
-        else {
-            // The key does not correspond to the hostname.
-            // Let's see if it is the admin key...
-            keytool.find('*', function(error, reply) {
-                if(error != null) {
-                    console.error(error);
-                    return callback(error);
-                }
-                
-                if (reply != null && reply === apiKey) {
-                    // API Key is the admin api key
-                    // Authorized
-                    callback(null, reply);
-                }
-                else {
-                    // bad api key
-                    return callback(new Error('Bad API key'));
-                }
-            });
-        }
-    });
-};
-
-
-
 router.get('/', function(req, res, next) {
     res.send('Seriously, what are you trying to do ?');
 });
 
 router.put('/:hostname', function(req, res, next) {
     var apiKey = req.query.key;
-    validKey(req.params.hostname, apiKey, function(err, reply) {
+    keytool.checkKey(req.params.hostname, apiKey, function(err, reply) {
         if(err != null)
             return next(err);
             
@@ -76,7 +33,7 @@ router.put('/:hostname', function(req, res, next) {
 
 router.get('/:hostname/:query?', function(req, res, next) {
     var apiKey = req.query.key;
-    validKey(req.params.hostname, apiKey, function(err, reply) {
+    keytool.checkKey(req.params.hostname, apiKey, function(err, reply) {
         if(err != null)
             return next(err);
             
