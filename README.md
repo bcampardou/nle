@@ -13,3 +13,28 @@ You can take a look at the available tags here : https://hub.docker.com/r/berang
 
 If it is the first time you run node-log-engine, the project should ask you 'Do you wan't to create a administration api key ?'
 Answer 'y' and write the api key somewhere.
+
+# Routes
+
+NLE use method-override. You can set a request parameter '_method=PUT' to send a PUT request.
+
+## hostname parameter
+
+The hostname parameter has to match the following regex :        
+
+    /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
+
+It allows domain names so you can use your application's domain name. This let you use NLE for multiple applications.
+
+## The LOG route
+
+Insert logs : 
+    PUT /log/:hostname?key=YOUR_APP_API_KEY
+The body of the request is the document that will be stored. You can define your own body with the properties you need.
+
+Get logs :
+    GET /log/:hostname?key=YOUR_APP_API_KEY
+    
+## The ADMIN route
+
+Coming soon... Take a look at the code ;)
