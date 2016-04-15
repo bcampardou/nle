@@ -1,6 +1,7 @@
 var util = require('util'),
     config = require('config'),
-    elasticsearch = require('elasticsearch');
+    elasticsearch = require('elasticsearch'),
+    async = require('async');
 
 var esclient = elasticsearch.Client({
     hosts: config.get("ElasticSearch.hosts")
@@ -19,5 +20,26 @@ module.exports = {
     },
     search: function(query, successCallback, errorCallback) {
         esclient.search(query).then(successCallback, errorCallback);
+    },
+    delete: function(hostname, type, successCallback, errorCallback) {
+        esclient.search({index:hostname, type:type, size: 9999, body: { query: { "match_all": {} }}}).then(function(reply) {
+            var ids = new Array();
+            var results = reply.hits.hits;
+            for(var i in results) {
+                ids.push(results[i]._id);
+            }
+            
+            async.eachSeries(ids, function iteratee(item, callback) {
+                esclient.delete({
+                    index: hostname,
+                    type: type,
+                    id: item
+                });
+                callback();
+            }, function done() {
+                return successCallback();
+            });
+            
+        }, errorCallback);
     }
 }
