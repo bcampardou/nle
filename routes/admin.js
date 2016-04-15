@@ -56,7 +56,7 @@ router.delete('/:hostname/:type', function(req, res, next) {
         if(err !== null) return next(err);
         
         logger.delete(hostname, type, function(response) {
-            res.json(response);
+            res.json('OK');
         }, function(error) {
             next(error);
         });

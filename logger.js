@@ -22,7 +22,7 @@ module.exports = {
         esclient.search(query).then(successCallback, errorCallback);
     },
     delete: function(hostname, type, successCallback, errorCallback) {
-        esclient.search({index:hostname, type:type, body: { query: { "match_all": {} }}}).then(function(reply) {
+        esclient.search({index:hostname, type:type, size: 9999, body: { query: { "match_all": {} }}}).then(function(reply) {
             var ids = new Array();
             var results = reply.hits.hits;
             for(var i in results) {
