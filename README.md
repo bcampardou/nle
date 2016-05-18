@@ -1,6 +1,12 @@
 # node-log-engine
 A nodejs application to store logs of multiple applications. Uses redis and elasticsearch.
 
+Branch | Build Status 
+------ | :----------- 
+dev | [![Build status](https://ci.appveyor.com/api/projects/status/4bqmm67vws9f19yq/branch/dev?svg=true)](https://ci.appveyor.com/project/BaobabCoder/node-log-engine/branch/dev)
+master | [![Build status](https://ci.appveyor.com/api/projects/status/4bqmm67vws9f19yq/branch/master?svg=true)](https://ci.appveyor.com/project/BaobabCoder/node-log-engine/branch/master)
+
+
 # Get started
 
 You can use this project with docker. Use the following command lines to run redis, elasticsearch and Node log engine :
