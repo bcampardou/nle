@@ -3,8 +3,8 @@ A nodejs application to store logs of multiple applications. Uses redis and elas
 
 Branch | Build Status 
 ------ | :----------- 
-dev | [![Build status](https://ci.appveyor.com/api/projects/status/4bqmm67vws9f19yq/branch/dev?svg=true)](https://ci.appveyor.com/project/BaobabCoder/node-log-engine/branch/dev)
-master | [![Build status](https://ci.appveyor.com/api/projects/status/4bqmm67vws9f19yq/branch/master?svg=true)](https://ci.appveyor.com/project/BaobabCoder/node-log-engine/branch/master)
+dev | [![Build Status](https://travis-ci.org/BaobabCoder/node-log-engine.svg?branch=dev)](https://travis-ci.org/BaobabCoder/node-log-engine)
+master | [![Build Status](https://travis-ci.org/BaobabCoder/node-log-engine.svg?branch=master)](https://travis-ci.org/BaobabCoder/node-log-engine)
 
 
 # Get started
