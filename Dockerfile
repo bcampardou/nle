@@ -9,10 +9,10 @@ RUN apt-get update
 WORKDIR /srv
 
 # add source files
-RUN git clone https://github.com/BaobabCoder/node-log-engine.git -b "dev" --single-branch
-RUN rm -rf node-log-engine/node_modules
-RUN cp -a node-log-engine/. .
-RUN rm -rf node-log-engine
+RUN wget https://github.com/BaobabCoder/node-log-engine/archive/beta3.tar.gz
+RUN tar -xvzf node-log-engine-1_0_0.tar.gz node-log-engine-1_0_0
+RUN rm -rf ./node_modules
+RUN rm -rf node-log-engine-1_0_0.tar.gz
 
 # install express
 RUN npm install -g express
