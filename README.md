@@ -13,7 +13,7 @@ You can use this project with docker. Use the following command lines to run red
 
     docker run -d -p 6379:6379 --name=redis redis:latest
     docker run -d -p 9200:9200 -p 9300:9300 --name=elasticsearch elasticsearch
-    docker run -i -t --name=nle -p 3000:3000 beranger/nodelog-docker:dev
+    docker run -i -t --name=nle -p 3000:3000 beranger/nodelog-docker:1
 
 You can take a look at the available tags here : https://hub.docker.com/r/beranger/nodelog-docker/tags/
 
