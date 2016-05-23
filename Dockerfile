@@ -1,19 +1,17 @@
-FROM node:5-onbuild
+FROM node:onbuild
 
 # make sure apt is up to date
 RUN apt-get update
 
-
+# add source files
+ADD . /srv
 
 # set the working directory to run commands from
 WORKDIR /srv
 
-# add source files
-RUN wget https://github.com/BaobabCoder/node-log-engine/archive/beta3.tar.gz
-RUN tar -xvzf node-log-engine-1_0_0.tar.gz node-log-engine-1_0_0
-RUN rm -rf ./node_modules
-RUN rm -rf node-log-engine-1_0_0.tar.gz
+CMD ["ls"]
 
+RUN rm -rf ./node_modules
 # install express
 RUN npm install -g express
 # install the dependencies
