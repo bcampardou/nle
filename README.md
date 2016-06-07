@@ -1,4 +1,6 @@
 # node-log-engine
+
+[![Join the chat at https://gitter.im/BaobabCoder/node-log-engine](https://badges.gitter.im/BaobabCoder/node-log-engine.svg)](https://gitter.im/BaobabCoder/node-log-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 A nodejs application to store logs of multiple applications. Uses redis and elasticsearch.
 
 Branch | Build Status 
