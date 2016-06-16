@@ -79,8 +79,6 @@ router.get('/hosts', function(req, res, next) {
     });
 });
 
-
-
 router.get('/keys/:hostname', function(req, res, next) {
     var apiKey = req.query.key;
     var hostname = req.params.hostname;

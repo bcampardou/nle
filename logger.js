@@ -41,5 +41,10 @@ module.exports = {
             });
             
         }, errorCallback);
+    },
+    getMapping: function(hostname, successCallback, errorCallback) {
+        var test = esclient.indices.getMapping({
+        index: hostname,
+        }).then(successCallback, errorCallback);
     }
 }

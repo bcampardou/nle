@@ -14,6 +14,7 @@ CMD ["ls"]
 RUN rm -rf ./node_modules
 # install express
 RUN npm install -g express
+RUN npm install -g forever
 # install the dependencies
 RUN npm install
 
@@ -21,4 +22,4 @@ RUN npm install
 EXPOSE 3000
 
 # run this after the container has been instantiated
-CMD ["npm", "start"]
+CMD ["forever", "start"]

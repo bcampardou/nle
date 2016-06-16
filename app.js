@@ -1,4 +1,7 @@
+'use strict';
+
 var express = require('express')
+    , app = express()
     , path = require('path')
     , favicon = require('serve-favicon')
     , logger = require('morgan')
@@ -9,9 +12,9 @@ var express = require('express')
     , routes = require('./routes/index')
     , log = require('./routes/log')
     , admin = require('./routes/admin')
-    , keytool = require('./key-tool')
-    , app = express();
+    , keytool = require('./key-tool');
 const readline = require('readline');
+
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -95,5 +98,6 @@ else {
         });
     });    
 }
+
 
 module.exports = app;

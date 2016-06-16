@@ -15,6 +15,21 @@ router.get('/', function(req, res, next) {
     res.send('Seriously, what are you trying to do ?');
 });
 
+router.get('/:hostname/structure', function(req,res,next) {
+    var apiKey = req.query.key;
+    if(apiKey == undefined) {
+        // bad api key
+        return next(new Error('Bad API key'));
+    }
+    var hostname = req.params.hostname;
+    logger.getMapping(hostname, function(response) {        
+      res.send({ "structure": response[hostname].mappings.log.properties });
+    }, function(err) { 
+        return next(err) 
+    });
+    
+});
+
 router.put('/:hostname', function(req, res, next) {
     var apiKey = req.query.key;
     keytool.checkKey(req.params.hostname, apiKey, function(err, reply) {
