@@ -11,6 +11,7 @@ master | [![Build Status](https://travis-ci.org/BaobabCoder/node-log-engine.svg?
 
 You can run this project on Docker. Use the following command lines to run redis, elasticsearch and Node log engine :
 
+<<<<<<< HEAD
     docker run --name some-redis -d -p 6379:6379 redis redis-server --appendonly yes
     docker run -d -p 9200:9200 -p 9300:9300 --name some-elasticsearch elasticsearch
 
@@ -26,6 +27,8 @@ Once the sources are pasted, you are able to build the Docker image :
 You can use the dev tagged docker image to run a docker container that uses the current "dev" branch :
 
     docker run -i -t --name some-nle -p 3000:3000 beranger/nodelog-docker:dev
+=======
+>>>>>>> refs/remotes/origin/master
 
 You can take a look at the available tags here : https://hub.docker.com/r/beranger/nodelog-docker/tags/
 
