@@ -1,4 +1,4 @@
-# node-log-engine [![Gitter](https://badges.gitter.im/BaobabCoder/node-log-engine.svg)](https://gitter.im/BaobabCoder/node-log-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+# NLE - Node Log Engine [![Gitter](https://badges.gitter.im/BaobabCoder/node-log-engine.svg)](https://gitter.im/BaobabCoder/node-log-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 A nodejs application to store logs of multiple applications. Uses redis and elasticsearch.
 
 Branch | Build Status 
@@ -11,7 +11,7 @@ master | [![Build Status](https://travis-ci.org/BaobabCoder/node-log-engine.svg?
 
 You can run this project on Docker. Use the following command lines to run redis, elasticsearch and Node log engine :
 
-    docker run --name some-redis -d redis redis-server --appendonly yes
+    docker run --name some-redis -d -p 6379:6379 redis redis-server --appendonly yes
     docker run -d -p 9200:9200 -p 9300:9300 --name some-elasticsearch elasticsearch
 
 To run NLE, you can download the sources from the releases section or using the command :

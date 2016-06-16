@@ -23,7 +23,7 @@ router.get('/:hostname/structure', function(req,res,next) {
     }
     var hostname = req.params.hostname;
     logger.getMapping(hostname, function(response) {        
-      res.send(response[hostname].mappings.log.properties);
+      res.send({ "structure": response[hostname].mappings.log.properties });
     }, function(err) { 
         return next(err) 
     });
