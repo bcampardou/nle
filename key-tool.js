@@ -73,6 +73,26 @@ module.exports = {
             }
         });
     },
+    deleteKey: function(apiKey, hostname, callback) {
+        client.get('*', function(error, reply) {
+            if(error != null) {
+                console.error(error);
+                return callback(error);
+            }
+            
+            if(reply == null) {
+                callback(new Error('No administration key registered'));
+            } else {
+                if (reply == apiKey) {
+                    client.del(hostname);
+                    return callback(null);
+                }
+                else {
+                    return callback(new Error('The api key does not match the registered administration key'));
+                }
+            }
+        });
+    },
     getKeys: function(apiKey, callback) {
         client.get('*', function(error, reply) {
             if(error != null) {

@@ -14,6 +14,29 @@ router.param("hostname", function(req, res, next, hostname) {
     return next();
 });
 
+
+router.delete('/:hostname', function(req, res, next) {
+    var apiKey = req.query.key;
+    var hostname = req.params.hostname;
+    
+    if(apiKey == undefined) {
+        //bad api key
+        return next(new Error('No API key defined'));
+    }
+    
+    keytool.checkKey("*", apiKey, function(err, reply) {
+        if(err !== null) return next(err);
+        
+        logger.deleteIndex(hostname, function(error, response) {
+            if(error) {
+                return next(error);
+            }
+            keytool.deleteKey(apiKey, hostname, function(err) { if(err) return next(err); });
+            return res.json(response);
+        });
+    });
+});
+
 router.put('/register/:hostname', function(req, res, next) {
     var apiKey = req.query.key;
     var hostname = req.params.hostname;
@@ -32,7 +55,7 @@ router.put('/register/:hostname', function(req, res, next) {
                 if(error != null) {
                     return next(error);
                 }
-                
+
                 res.json(reply);
             });
         }
@@ -52,16 +75,17 @@ router.delete('/:hostname/:type', function(req, res, next) {
         return next(new Error('No API key defined'));
     }
     
-    keytool.checkKey(hostname, apiKey, function(err, reply) {
+    keytool.checkKey("*", apiKey, function(err, reply) {
         if(err !== null) return next(err);
         
         logger.delete(hostname, type, function(response) {
-            res.json('OK');
+            return res.json('OK');
         }, function(error) {
-            next(error);
+            return next(error);
         });
     });
 });
+
 
 router.get('/hosts', function(req, res, next) {
     var apiKey = req.query.key;

@@ -42,6 +42,15 @@ module.exports = {
             
         }, errorCallback);
     },
+    deleteIndex: function(hostname, callback) {
+        esclient.indices.exists({"index":hostname}, function(err, response) {
+            if (err != null) callback(err);
+            if(response === true) {
+                return esclient.indices.delete({"index":hostname}, callback);
+            }
+            return callback(null, "No index to remove");
+        });
+    },
     getMapping: function(hostname, successCallback, errorCallback) {
         var test = esclient.indices.getMapping({
         index: hostname,
