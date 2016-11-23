@@ -1,9 +1,8 @@
-var express = require('express');
-var util = require('util');
-var config = require('config');
-var router = express.Router();
-var keytool = require('../key-tool');
-var logger = require('../logger');
+const router = require('express').Router(),
+    util = require('util'),
+    config = require('config'),
+    keytool = require('../key-tool'),
+    logger = require('../logger');
 
 // define wich hostname are valid as param
 router.param("hostname", function(req, res, next, hostname) {
@@ -19,22 +18,16 @@ router.delete('/:hostname', function(req, res, next) {
     var apiKey = req.query.key;
     var hostname = req.params.hostname;
     
-    if(apiKey == undefined) {
-        //bad api key
-        return next(new Error('No API key defined'));
-    }
-    
-    keytool.checkKey("*", apiKey, function(err, reply) {
-        if(err !== null) return next(err);
-        
-        logger.deleteIndex(hostname, function(error, response) {
-            if(error) {
-                return next(error);
-            }
-            keytool.deleteKey(apiKey, hostname, function(err) { if(err) return next(err); });
-            return res.json(response);
-        });
-    });
+    keytool.checkKey("*", apiKey)
+        .then( function() {        
+            logger.deleteIndex(hostname, function(error, response) {
+                if(error) {
+                    return next(error);
+                }
+                keytool.deleteKey(apiKey, hostname, function(err) { if(err) return next(err); });
+                return res.jsonp(response);
+            });
+        }, next);
 });
 
 router.put('/register/:hostname', function(req, res, next) {
@@ -70,20 +63,15 @@ router.delete('/:hostname/:type', function(req, res, next) {
     var apiKey = req.query.key;
     var hostname = req.params.hostname;
     var type = req.params.type;
-    if(apiKey == undefined) {
-        //bad api key
-        return next(new Error('No API key defined'));
-    }
     
-    keytool.checkKey("*", apiKey, function(err, reply) {
-        if(err !== null) return next(err);
-        
-        logger.delete(hostname, type, function(response) {
-            return res.json('OK');
-        }, function(error) {
-            return next(error);
-        });
-    });
+    keytool.checkKey("*", apiKey)
+        .then(function() {
+            logger.delete(hostname, type, function(response) {
+                return res.send('OK');
+            }, function(error) {
+                return next(error);
+            });
+        }, next);
 });
 
 
@@ -99,7 +87,7 @@ router.get('/hosts', function(req, res, next) {
             return next(error);
         }
         
-        res.jsonp(reply);
+        return res.jsonp(reply);
     });
 });
 
@@ -111,25 +99,16 @@ router.get('/keys/:hostname', function(req, res, next) {
         return next(new Error('No API key defined'));
     }
     
-    keytool.find('*', function(error, reply) {
-        if(error != null) {
-            return next(new Error('Error getting the admin api key.'));
-        }
-        
-        if(reply == apiKey) {
+    keytool.checkKey('*', apiKey)
+        .then(function(registeredKey) {
             keytool.find(hostname, function(error, reply) {
                 if(error != null) {
                     return next(error);
                 }
                 
-                res.jsonp(reply);
+                return res.jsonp(reply);
             });
-        }
-        else {
-            //bad api key
-            return next(new Error('Bad API key'));
-        }
-    });
+        }, next);
 });
 
 module.exports = router;
