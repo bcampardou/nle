@@ -49,7 +49,7 @@ router.put('/register/:hostname', function(req, res, next) {
                     return next(error);
                 }
 
-                res.json(reply);
+                return res.json(reply);
             });
         }
         else {
