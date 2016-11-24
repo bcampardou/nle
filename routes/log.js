@@ -1,7 +1,6 @@
-var express = require('express');
-var keytool = require('../key-tool');
-var logger = require('../logger');
-var router = express.Router();
+const router = require('express').Router(),
+    keytool = require('../key-tool'),
+    logger = require('../logger');
 
 // define wich hostname are valid as param
 router.param("hostname", function(req, res, next, hostname) {
@@ -17,77 +16,76 @@ router.get('/', function(req, res, next) {
 
 router.get('/:hostname/structure', function(req,res,next) {
     var apiKey = req.query.key;
-    if(apiKey == undefined) {
-        // bad api key
-        return next(new Error('Bad API key'));
-    }
-    var hostname = req.params.hostname;
-    logger.getMapping(hostname, function(response) {        
-      res.send({ "structure": response[hostname].mappings.log.properties });
-    }, function(err) { 
-        return next(err) 
-    });
     
+    keytool.checkKey(req.params.hostname, apiKey)
+        .then(function() {
+            var hostname = req.params.hostname;
+            logger.getMapping(hostname)
+                .then(function(response) {        
+                    return res.jsonp({ "structure": response[hostname].mappings.log.properties });
+                }, function(err) { 
+                    return next(err) 
+                });
+        }, next);
 });
 
 router.put('/:hostname', function(req, res, next) {
     var apiKey = req.query.key;
-    keytool.checkKey(req.params.hostname, apiKey, function(err, reply) {
-        if(err != null)
-            return next(err);
-            
-        logger.log(req.params.hostname, req.body, function(error, response) {
-            if(error != null) {
-                return next(error);
-            } else {
-                res.send(response);
-            }
-        });
-    });
+    keytool.checkKey(req.params.hostname, apiKey)
+        .then(function(registeredKey) {
+            logger.log(req.params.hostname, req.body)
+                .then(function(reply){ 
+                    return res.send(reply);
+                }, function(err) { 
+                    return next(err); 
+                })
+                .catch(next);
+        })
+        .catch(next);
 });
 
+// Get the registered logs of the :hostname index
 router.get('/:hostname/:query?', function(req, res, next) {
     var apiKey = req.query.key;
-    keytool.checkKey(req.params.hostname, apiKey, function(err, reply) {
-        if(err != null)
-            return next(err);
-            
-        var query = {
-            index: req.params.hostname,
-            type: 'log',
-            size: 1000
-        };
-        if(typeof req.params.query === 'string') {
-            query.body = {
-                "sort" : [
-                    { "createdAt" : {"order" : "asc"}},
-                ],
-                "query": {
-                    "match": {
-                    "body": req.params.query
+
+    keytool.checkKey(req.params.hostname, apiKey)
+        .then(function() {
+            var body = req.params.query;
+            var query = {
+                index: req.params.hostname,
+                type: 'log',
+                size: 9999,
+                body: {
+                    "sort" : [
+                        { "createdAt" : {"order" : "desc"}},
+                    ],
+                    "query": {
                     }
                 }
             };
-        } else {
-            query.body = {
-                "sort" : [
-                    { "createdAt" : {"order" : "asc"}},
-                ],
-                "query" : {
-                    "match_all" : {}
-                }
+            if(typeof body === 'string') {
+                query.body.query = {
+                        "match": {
+                        "body": body
+                        }
+                    };
+            } else {
+                query.body.query = {
+                        "match_all" : {}
+                    };
             }
-        }
-        logger.search(query, function (resp) {
-                var hits = resp.hits.hits;
-                res.jsonp(hits);
-            }, function (err) {
-                console.trace(err.message);
-                next(err);
-            });
-    });
+            logger.search(query)
+                .then(function (logs) {
+                    var hits = logs.hits.hits;
+                    return res.jsonp(hits);
+                }, function (err) {
+                    console.log(err.message);
+                    return next(err);
+                });
+        }, function (err) {
+            console.log(err);
+            return next(err);
+        });
 });
-
-// TODO : delete /:hostname/:query? admin
 
 module.exports = router;

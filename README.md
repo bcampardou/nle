@@ -3,8 +3,8 @@ A nodejs application to store logs of multiple applications. Uses redis and elas
 
 Branch | Build Status 
 ------ | :----------- 
-dev | [![Build Status](https://travis-ci.org/BaobabCoder/node-log-engine.svg?branch=dev)](https://travis-ci.org/BaobabCoder/node-log-engine)
-master | [![Build Status](https://travis-ci.org/BaobabCoder/node-log-engine.svg?branch=master)](https://travis-ci.org/BaobabCoder/node-log-engine)
+dev | [![Build Status](https://travis-ci.org/BaobabCoder/nle.svg?branch=dev)](https://travis-ci.org/BaobabCoder/nle)
+master | [![Build Status](https://travis-ci.org/BaobabCoder/nle.svg?branch=master)](https://travis-ci.org/BaobabCoder/nle)
 
 
 # Get started
@@ -23,14 +23,18 @@ Once the sources are pasted, you are able to build the Docker image :
     docker build -t nle .
     docker run -it --name some-nle -p 3000:3000 my-nle-image-name
 
-You can use the dev tagged docker image to run a docker container that uses the current "dev" branch :
+You can use the latest docker image :
 
-    docker run -i -t --name some-nle -p 3000:3000 beranger/nodelog-docker:dev
+    docker run -i -t --name some-nle -p 3000:3000 beranger/nle:latest
 
 You can take a look at the available tags here : https://hub.docker.com/r/beranger/nodelog-docker/tags/
 
-If it is the first time you run node-log-engine, the project should ask you 'Do you wan't to create a administration api key ?'
-Answer 'y' and write the api key somewhere.
+If it is the first time you run node-log-engine, the app will register an administration API key.
+When running as a daemon in docker, you can see the key with the command :
+
+    docker logs some-nle
+
+
 
 # Routes
 
